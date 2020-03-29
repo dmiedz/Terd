@@ -3,7 +3,7 @@ body, html {
 }
 
 .hero-image {
-  background-image: url("/images/background.jpg");
+  background-image: url("/images/ttr-bracket.png");
   height: 50%;
   background-position: center;
   background-repeat: no-repeat;
