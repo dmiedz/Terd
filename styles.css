@@ -2,3 +2,8 @@
 h1 {
     text-align: center;
   }
+
+body {
+ background-image: url("/images/background.jpg");
+ background-color: #cccccc;
+}
