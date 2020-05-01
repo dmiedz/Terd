@@ -5,5 +5,16 @@ h1 {
 
 body {
  background-image: url("/images/background.jpg");
- background-color: #cccccc;
+}
+
+p, h2, .spot {
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+}
+
+.spot {
+   display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
