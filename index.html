@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League of Shadows — Fantasy Football</title>
+<meta name="description" content="Terdgler's Trash Crew — League of Shadows Fantasy Football. Standings, power rankings, stats and editorials.">
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #B8860B;
+  --gold-light: #F5E6A3;
+  --gold-mid: #D4A017;
+  --gold-bg: #FEFBF0;
+  --gold-border: rgba(184,134,11,0.25);
+  --gold-border-strong: rgba(184,134,11,0.55);
+  --red: #C0392B;
+  --green: #1E7E34;
+  --blue: #1A5CA8;
+  --surface: #F8F6F1;
+  --card: #FFFFFF;
+  --border: rgba(0,0,0,0.09);
+  --border-strong: rgba(0,0,0,0.18);
+  --text: #1A1A1A;
+  --text2: #444444;
+  --text3: #888888;
+  --muted: #AAAAAA;
+  --navy: #013369;
+  --nfl-red: #D50A0A;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+img { display: block; max-width: 100%; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Header ───────────────────────────────────────────────── */
+.site-header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold-mid);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  gap: 12px;
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-text .logo-name {
+  font-size: 17px; font-weight: 900; color: var(--gold-mid);
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.logo-text .logo-sub {
+  font-size: 10px; color: rgba(255,255,255,.5);
+  letter-spacing: .1em; text-transform: uppercase;
+}
+.nav { display: flex; gap: 2px; flex-wrap: wrap; }
+.nav-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,.65); font-size: 12px; font-weight: 600;
+  padding: 6px 11px; border-radius: 5px 5px 0 0;
+  cursor: pointer; letter-spacing: .04em; text-transform: uppercase;
+  transition: color .15s, background .15s;
+}
+.nav-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+.nav-btn.active { color: var(--gold-mid); background: rgba(212,160,23,.15); border-bottom: 2px solid var(--gold-mid); }
+.week-badge {
+  background: var(--gold-mid); color: var(--navy);
+  font-size: 11px; font-weight: 900;
+  padding: 4px 12px; border-radius: 20px;
+  letter-spacing: .06em; text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Ticker ───────────────────────────────────────────────── */
+.ticker-bar { background: var(--navy); border-bottom: 1px solid rgba(255,255,255,.08); padding: 6px 20px; overflow: hidden; }
+.ticker-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 20px; align-items: center; }
+.ticker-label {
+  font-size: 10px; font-weight: 900; color: var(--nfl-red);
+  text-transform: uppercase; letter-spacing: .1em; white-space: nowrap;
+  background: rgba(213,10,10,.15); padding: 2px 6px;
+  border-radius: 3px; border: 1px solid rgba(213,10,10,.3);
+}
+.ticker-scroll { display: flex; gap: 24px; overflow: hidden; }
+.ticker-item { display: flex; gap: 6px; font-size: 11px; white-space: nowrap; color: rgba(255,255,255,.7); }
+.ticker-score { color: #fff; font-weight: 700; }
+.t-win  { color: #4ADE80; font-weight: 700; }
+.t-loss { color: #F87171; font-weight: 700; }
+
+/* ── Pages ────────────────────────────────────────────────── */
+.page { display: none; max-width: 1100px; margin: 0 auto; padding: 20px 20px 56px; }
+.page.active { display: block; }
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero {
+  background: var(--navy); border-radius: 10px;
+  padding: 24px 28px; margin-bottom: 20px;
+  display: grid; grid-template-columns: 1fr auto; gap: 20px;
+  align-items: center; border: 1px solid var(--border-strong);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-mid), #F5E6A3, var(--gold-mid));
+}
+.hero-week { font-size: 10px; font-weight: 900; color: var(--gold-mid); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
+.hero-title { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 4px; line-height: 1.15; }
+.hero-sub { font-size: 12px; color: rgba(255,255,255,.55); }
+.hero-live { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 800; color: #F87171; text-transform: uppercase; letter-spacing: .08em; margin-top: 8px; }
+.live-dot { width: 6px; height: 6px; background: #F87171; border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+.hero-matchup {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px; padding: 16px 18px;
+}
+.hero-team { text-align: center; min-width: 88px; }
+.hero-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 5px; }
+.hero-team-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .04em; }
+.hero-team-score { font-size: 26px; font-weight: 900; color: #fff; }
+.hero-vs { font-size: 11px; font-weight: 800; color: rgba(255,255,255,.3); }
+
+/* ── Utility grids ────────────────────────────────────────── */
+.g3 { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+.g2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-bottom: 20px; }
+.g-main { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 20px; }
+
+/* ── Stat pills ───────────────────────────────────────────── */
+.stat-pill {
+  background: var(--card); border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--gold-mid); border-radius: 8px;
+  padding: 14px; text-align: center;
+}
+.stat-value { font-size: 22px; font-weight: 900; color: var(--navy); }
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card { background: var(--card); border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+.card:last-child { margin-bottom: 0; }
+.card-hd { padding: 11px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--navy); }
+.card-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--gold-mid); }
+.card-bd { padding: 12px 16px; }
+
+/* ── Photo strip ──────────────────────────────────────────── */
+.photo-strip { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-bottom: 20px; }
+.photo-card { border-radius: 8px; overflow: hidden; border: 2px solid var(--border-strong); position: relative; }
+.photo-card img { width: 100%; height: 110px; object-fit: cover; object-position: top; background: var(--navy); }
+.photo-cap { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(1,51,105,.88); padding: 5px 8px; font-size: 10px; font-weight: 800; color: var(--gold-mid); text-transform: uppercase; letter-spacing: .07em; }
+
+/* ── Section label ────────────────────────────────────────── */
+.section-lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--navy); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-lbl::after { content:''; flex:1; height: 2px; background: var(--navy); border-radius: 1px; }
+
+/* ── Matchup cards ────────────────────────────────────────── */
+.matchup-card { background: var(--card); border: 1px solid var(--border-strong); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+.matchup-row { display: flex; align-items: center; gap: 8px; }
+.matchup-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--text); }
+.matchup-owner { font-size: 10px; color: var(--text3); font-weight: 400; }
+.matchup-score { font-size: 16px; font-weight: 900; width: 52px; text-align: right; }
+.matchup-score.win  { color: var(--navy); }
+.matchup-score.loss { color: var(--muted); }
+.matchup-mid { text-align: center; font-size: 10px; color: var(--text3); padding: 3px 0; }
+.matchup-proj { font-size: 10px; color: var(--muted); text-align: right; margin-top: 2px; }
+
+/* ── Standings table ──────────────────────────────────────── */
+.standings-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.standings-table th { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.7); padding: 8px 8px; text-align: left; background: var(--navy); }
+.standings-table td { padding: 9px 8px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); vertical-align: middle; }
+.standings-table tr:last-child td { border-bottom: none; }
+.standings-table tr:hover td { background: #FAFAFA; }
+.rank-badge { width: 22px; height: 22px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+.rk1 { background: var(--gold-light); color: var(--gold); }
+.rk2 { background: #F0F0F0; color: #888; }
+.rk3 { background: #FFF0E0; color: #B08C64; }
+.rkn { background: #F4F4F4; color: var(--text3); }
+.team-cell { display: flex; align-items: center; gap: 7px; }
+.pbar { width: 5px; height: 22px; border-radius: 2px; flex-shrink: 0; }
+.pbar-in     { background: var(--green); }
+.pbar-bubble { background: var(--gold-mid); }
+.pbar-out    { background: #DDD; }
+.rec-w { color: var(--green); font-weight: 800; }
+.rec-l { color: var(--red);   font-weight: 700; }
+.streak-w { color: var(--green); font-size: 11px; font-weight: 800; }
+.streak-l { color: var(--red);   font-size: 11px; font-weight: 800; }
+
+/* ── Playoff box ──────────────────────────────────────────── */
+.playoff-box { background: var(--card); border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+.playoff-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.playoff-row:last-child { border-bottom: none; }
+
+/* ── Power rankings ───────────────────────────────────────── */
+.ranking-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.ranking-row:last-child { border-bottom: none; }
+.rk-num { font-size: 20px; font-weight: 900; color: var(--text3); min-width: 26px; text-align: right; }
+.rk-move { font-size: 11px; font-weight: 800; min-width: 26px; text-align: center; padding-top: 4px; }
+.move-up   { color: var(--green); }
+.move-dn   { color: var(--red); }
+.move-same { color: var(--text3); }
+.rk-team { flex: 1; }
+.rk-name  { font-size: 13px; font-weight: 700; color: var(--text); }
+.rk-blurb { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+.rk-score { font-size: 13px; font-weight: 800; color: var(--navy); min-width: 40px; text-align: right; padding-top: 2px; }
+
+.mover-card { background: var(--card); border: 1px solid var(--border-strong); border-top: 3px solid var(--green); border-radius: 8px; padding: 14px; text-align: center; margin-bottom: 12px; }
+.faller-card { background: var(--card); border: 1px solid var(--border-strong); border-top: 3px solid var(--red); border-radius: 8px; padding: 14px; text-align: center; }
+.mover-badge { background: #EAFAF0; border: 1px solid rgba(30,126,52,.25); border-radius: 6px; padding: 8px; font-size: 12px; color: var(--green); font-weight: 800; margin: 8px 0; }
+.faller-badge { background: #FDECEA; border: 1px solid rgba(192,57,43,.25); border-radius: 6px; padding: 8px; font-size: 12px; color: var(--red); font-weight: 800; margin: 8px 0; }
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+.tabs { display: flex; gap: 2px; background: #F4F4F4; border: 1px solid var(--border-strong); border-radius: 8px; padding: 3px; margin-bottom: 16px; width: fit-content; }
+.tab { background: none; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--text3); cursor: pointer; letter-spacing: .03em; text-transform: uppercase; }
+.tab.active { background: var(--navy); color: var(--gold-mid); }
+
+/* ── Player rows ──────────────────────────────────────────── */
+.player-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.player-row:last-child { border-bottom: none; }
+.player-num { font-size: 13px; font-weight: 800; color: var(--text3); min-width: 18px; text-align: right; }
+.player-avatar { width: 30px; height: 30px; border-radius: 50%; background: #F0F0F0; border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; overflow: hidden; }
+.player-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.player-info { flex: 1; }
+.player-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.player-sub  { font-size: 11px; color: var(--text3); }
+.player-stat { font-size: 15px; font-weight: 900; color: var(--navy); min-width: 48px; text-align: right; }
+.pos { font-size: 10px; font-weight: 800; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; }
+.pos-qb { background: #FDECEA; color: var(--red); }
+.pos-rb { background: #EAF2FF; color: var(--blue); }
+.pos-wr { background: #EAFAF0; color: var(--green); }
+.pos-te { background: var(--gold-bg); color: var(--gold); }
+
+/* ── Editorial ────────────────────────────────────────────── */
+.editorial-featured { background: var(--card); border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; margin-bottom: 18px; cursor: pointer; transition: border-color .15s; }
+.editorial-featured:hover { border-color: var(--gold-mid); }
+.feat-banner { background: var(--navy); padding: 7px 18px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; color: var(--gold-mid); border-bottom: 2px solid var(--gold-mid); }
+.feat-body { padding: 20px; }
+.feat-title { font-size: 20px; font-weight: 900; color: var(--text); margin-bottom: 8px; line-height: 1.25; }
+.feat-preview { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+.ed-card { background: var(--card); border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color .15s; }
+.ed-card:hover { border-color: var(--gold-border-strong); }
+.ed-banner { height: 5px; }
+.ed-body { padding: 16px; }
+.ed-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ed-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.ed-author { font-size: 12px; font-weight: 700; color: var(--text2); }
+.ed-date { font-size: 11px; color: var(--muted); }
+.ed-tag { margin-left: auto; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: 3px 7px; border-radius: 4px; }
+.tag-hot      { background: #FDECEA; color: var(--red); }
+.tag-analysis { background: #EAF2FF; color: var(--blue); }
+.tag-opinion  { background: var(--gold-bg); color: var(--gold); }
+.ed-title   { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.ed-preview { font-size: 12px; color: var(--text3); line-height: 1.6; }
+.ed-footer  { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ed-reactions { display: flex; gap: 10px; font-size: 11px; color: var(--text3); }
+.ed-read { font-size: 11px; color: var(--blue); font-weight: 700; }
+
+/* ── Write post ───────────────────────────────────────────── */
+.write-btn { background: var(--navy); border: none; color: var(--gold-mid); font-size: 12px; font-weight: 800; padding: 8px 16px; border-radius: 6px; cursor: pointer; letter-spacing: .04em; text-transform: uppercase; }
+.write-btn:hover { background: #01244F; }
+.compose { display: none; background: var(--gold-bg); border: 1px solid var(--gold-border-strong); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+.compose.open { display: block; }
+.compose-field { width: 100%; background: var(--card); border: 1px solid var(--border-strong); border-radius: 6px; padding: 9px 12px; color: var(--text); font-size: 13px; font-family: inherit; margin-bottom: 8px; }
+.compose-field:focus { outline: none; border-color: var(--gold-mid); }
+textarea.compose-field { min-height: 90px; resize: vertical; }
+.compose-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-pub { background: var(--navy); color: var(--gold-mid); border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.btn-cancel { background: none; border: 1px solid var(--border-strong); color: var(--text3); border-radius: 6px; padding: 8px 12px; font-size: 12px; cursor: pointer; }
+
+/* ── Trophies ─────────────────────────────────────────────── */
+.trophy-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 24px; }
+.trophy-item { background: var(--card); border: 1px solid var(--border-strong); border-top: 3px solid var(--gold-mid); border-radius: 8px; padding: 14px 12px; text-align: center; }
+.trophy-icon { font-size: 26px; margin-bottom: 6px; }
+.trophy-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 4px; }
+.trophy-winner { font-size: 13px; font-weight: 800; color: var(--navy); }
+.trophy-detail { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ── Yahoo badge ──────────────────────────────────────────── */
+.yahoo-badge { background: rgba(86,0,191,.08); border: 1px solid rgba(86,0,191,.25); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 800; color: #7C3AED; letter-spacing: .04em; text-transform: uppercase; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.site-footer { text-align: center; padding: 28px 20px; border-top: 2px solid var(--navy); margin-top: 8px; font-size: 11px; color: var(--text3); letter-spacing: .04em; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-matchup { display: none; }
+  .g-main { grid-template-columns: 1fr; }
+  .g3 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .photo-strip { grid-template-columns: 1fr; }
+  .trophy-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .g2 { grid-template-columns: 1fr; }
+  .nav-btn { font-size: 11px; padding: 5px 8px; }
+  .logo-text .logo-name { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <!-- Championship Belt SVG Logo -->
+      <svg width="48" height="48" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-label="League of Shadows belt logo">
+        <ellipse cx="26" cy="32" rx="24" ry="11" fill="#8B6914" stroke="#D4A017" stroke-width="1.5"/>
+        <rect x="4" y="22" width="44" height="16" rx="8" fill="#A0780F" stroke="#D4A017" stroke-width="1.5"/>
+        <rect x="8" y="26" width="36" height="8" rx="4" fill="#C8960C"/>
+        <rect x="16" y="24" width="20" height="12" rx="6" fill="#1a1a1a" stroke="#D4A017" stroke-width="1"/>
+        <ellipse cx="26" cy="30" rx="9" ry="5.5" fill="#2a2a2a" stroke="#D4A017" stroke-width="0.8"/>
+        <!-- Trash truck body -->
+        <rect x="20" y="27.5" width="12" height="5" rx="1.2" fill="#444"/>
+        <rect x="20" y="27.5" width="5" height="5" rx="1" fill="#555"/>
+        <!-- Wheels -->
+        <circle cx="22" cy="32.5" r="1" fill="#222"/>
+        <circle cx="29" cy="32.5" r="1" fill="#222"/>
+        <!-- Fire -->
+        <polygon points="23,27 24.5,24.5 26,27.5 27.5,24 29,27 27,29 23,29" fill="#FF4500"/>
+        <polygon points="24,27 25,25 26,27 27,25 28,27 26.5,28.5 24,28.5" fill="#FF7700" opacity="0.85"/>
+        <line x1="25" y1="25" x2="24" y2="22.5" stroke="#FFA500" stroke-width="0.8" opacity="0.8"/>
+        <line x1="26.5" y1="24.5" x2="26" y2="22" stroke="#FF6600" stroke-width="0.8" opacity="0.9"/>
+        <line x1="28" y1="25" x2="29" y2="22.5" stroke="#FF4400" stroke-width="0.8" opacity="0.8"/>
+        <!-- Side plates -->
+        <rect x="4" y="26" width="8" height="8" rx="4" fill="#8B6914" stroke="#D4A017" stroke-width="1"/>
+        <rect x="40" y="26" width="8" height="8" rx="4" fill="#8B6914" stroke="#D4A017" stroke-width="1"/>
+        <text x="8" y="32.5" text-anchor="middle" font-size="5" fill="#D4A017" font-weight="900">L</text>
+        <text x="44" y="32.5" text-anchor="middle" font-size="5" fill="#D4A017" font-weight="900">S</text>
+        <path d="M8 22 Q8 14 26 12 Q44 14 44 22" fill="none" stroke="#D4A017" stroke-width="1" opacity="0.4"/>
+      </svg>
+      <div class="logo-text">
+        <div class="logo-name">League of Shadows</div>
+        <div class="logo-sub">Fantasy Football · 2024 Season</div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-btn active" onclick="showPage('dashboard',this)">Dashboard</button>
+      <button class="nav-btn" onclick="showPage('standings',this)">Standings</button>
+      <button class="nav-btn" onclick="showPage('power',this)">Power Rankings</button>
+      <button class="nav-btn" onclick="showPage('stats',this)">Stats</button>
+      <button class="nav-btn" onclick="showPage('editorial',this)">Editorial</button>
+      <button class="nav-btn" onclick="showPage('trophies',this)">Trophy Case</button>
+    </nav>
+    <div class="week-badge">Week 12</div>
+  </div>
+</header>
+
+<!-- ═══ TICKER ════════════════════════════════════════════════════════ -->
+<div class="ticker-bar" aria-label="Live scores">
+  <div class="ticker-inner">
+    <div class="ticker-label">Live</div>
+    <div class="ticker-scroll">
+      <div class="ticker-item"><span>Shadow Syndicate</span><span class="ticker-score">127.4</span><span class="t-win">W</span><span>vs Gridiron Ghosts</span><span class="ticker-score">98.2</span></div>
+      <div class="ticker-item"><span>Midnight Blitz</span><span class="ticker-score">144.8</span><span class="t-win">W</span><span>vs End Zone Phantoms</span><span class="ticker-score">101.3</span></div>
+      <div class="ticker-item"><span>Dark Horse FC</span><span class="ticker-score">112.0</span><span class="t-loss">L</span><span>vs The Reapers</span><span class="ticker-score">118.5</span></div>
+      <div class="ticker-item"><span>Phantom Menace</span><span class="ticker-score">119.9</span><span class="t-win">W</span><span>vs Blitz Krieg</span><span class="ticker-score">88.4</span></div>
+      <div class="ticker-item"><span>Shadowstrikers</span><span class="ticker-score">131.2</span><span class="t-win">W</span><span>vs Vortex Nation</span><span class="ticker-score">110.6</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: DASHBOARD
+════════════════════════════════════════════════════════════════════ -->
+<main>
+<div class="page active" id="page-dashboard">
+
+  <div class="hero">
+    <div>
+      <div class="hero-week">Week 12 · Game of the Week</div>
+      <div class="hero-title">Shadow Syndicate<br>vs Midnight Blitz</div>
+      <div class="hero-sub">First place on the line — both squads top-3 in scoring all season</div>
+      <div class="hero-live"><div class="live-dot"></div> Live · Monday Night Football in Progress</div>
+    </div>
+    <div class="hero-matchup">
+      <div class="hero-team">
+        <div class="hero-avatar" style="background:rgba(212,160,23,.2)">🌑</div>
+        <div class="hero-team-name">Shadow Syndicate</div>
+        <div class="hero-team-score">127.4</div>
+      </div>
+      <div class="hero-vs">VS</div>
+      <div class="hero-team">
+        <div class="hero-avatar" style="background:rgba(213,10,10,.2)">⚡</div>
+        <div class="hero-team-name">Midnight Blitz</div>
+        <div class="hero-team-score">144.8</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="photo-strip">
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Josh_Allen_2022_%28cropped%29.jpg/440px-Josh_Allen_2022_%28cropped%29.jpg" alt="Josh Allen" loading="lazy">
+      <div class="photo-cap">Josh Allen · QB BUF · 38.7 pts this week</div>
+    </div>
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Christian_McCaffrey_2022.jpg/440px-Christian_McCaffrey_2022.jpg" alt="Christian McCaffrey" loading="lazy">
+      <div class="photo-cap">C. McCaffrey · RB SF · 34.2 pts this week</div>
+    </div>
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Saquon_Barkley_2022.jpg/440px-Saquon_Barkley_2022.jpg" alt="Saquon Barkley" loading="lazy">
+      <div class="photo-cap">Saquon Barkley · RB PHI · 27.4 pts this week</div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="stat-pill"><div class="stat-value">144.8</div><div class="stat-label">High Score This Week</div></div>
+    <div class="stat-pill"><div class="stat-value">1,847</div><div class="stat-label">Season PF Leader</div></div>
+    <div class="stat-pill"><div class="stat-value">112.4</div><div class="stat-label">League Avg / Week</div></div>
+  </div>
+
+  <div class="g-main">
+    <div>
+      <div class="section-lbl">This Week's Matchups</div>
+      <div class="matchup-card">
+        <div class="matchup-row"><span>🌑</span><div class="matchup-name">Shadow Syndicate <span class="matchup-owner">Marcus H.</span></div><div class="matchup-score win">127.4</div></div>
+        <div class="matchup-mid">vs · <span style="color:var(--red);font-weight:700">▼ 17.4</span></div>
+        <div class="matchup-row"><span>💨</span><div class="matchup-name">Gridiron Ghosts <span class="matchup-owner">Tyler B.</span></div><div class="matchup-score loss">98.2</div></div>
+        <div class="matchup-proj">Proj: 127.4 — 104.7</div>
+      </div>
+      <div class="matchup-card">
+        <div class="matchup-row"><span>⚡</span><div class="matchup-name">Midnight Blitz <span class="matchup-owner">Jordan L.</span></div><div class="matchup-score win">144.8</div></div>
+        <div class="matchup-mid">vs · <span style="color:var(--red);font-weight:700">▼ 43.5</span></div>
+        <div class="matchup-row"><span>👻</span><div class="matchup-name">End Zone Phantoms <span class="matchup-owner">Devon K.</span></div><div class="matchup-score loss">101.3</div></div>
+        <div class="matchup-proj">Proj: 140.1 — 108.2</div>
+      </div>
+      <div class="matchup-card">
+        <div class="matchup-row"><span>💀</span><div class="matchup-name">The Reapers <span class="matchup-owner">Chris M.</span></div><div class="matchup-score win">118.5</div></div>
+        <div class="matchup-mid">vs · <span style="color:var(--red);font-weight:700">▼ 6.5</span></div>
+        <div class="matchup-row"><span>🐎</span><div class="matchup-name">Dark Horse FC <span class="matchup-owner">Sam R.</span></div><div class="matchup-score loss">112.0</div></div>
+        <div class="matchup-proj">Proj: 121.3 — 115.0</div>
+      </div>
+      <div class="matchup-card">
+        <div class="matchup-row"><span>🔱</span><div class="matchup-name">Phantom Menace <span class="matchup-owner">Alex P.</span></div><div class="matchup-score win">119.9</div></div>
+        <div class="matchup-mid">vs · <span style="color:var(--red);font-weight:700">▼ 31.5</span></div>
+        <div class="matchup-row"><span>💥</span><div class="matchup-name">Blitz Krieg <span class="matchup-owner">Ryan T.</span></div><div class="matchup-score loss">88.4</div></div>
+        <div class="matchup-proj">Proj: 115.8 — 94.2</div>
+      </div>
+      <div class="matchup-card">
+        <div class="matchup-row"><span>🏹</span><div class="matchup-name">Shadowstrikers <span class="matchup-owner">Mike D.</span></div><div class="matchup-score win">131.2</div></div>
+        <div class="matchup-mid">vs · <span style="color:var(--red);font-weight:700">▼ 20.6</span></div>
+        <div class="matchup-row"><span>🌪️</span><div class="matchup-name">Vortex Nation <span class="matchup-owner">Nick W.</span></div><div class="matchup-score loss">110.6</div></div>
+        <div class="matchup-proj">Proj: 128.4 — 113.7</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-lbl">Top Performers</div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Week 12 Stars</div><div class="yahoo-badge">Yahoo</div></div>
+        <div class="card-bd" style="padding:8px 14px">
+          <div class="player-row">
+            <div class="player-num">1</div>
+            <div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Josh_Allen_2022_%28cropped%29.jpg/440px-Josh_Allen_2022_%28cropped%29.jpg" alt="Allen" loading="lazy" onerror="this.style.display='none'"></div>
+            <div class="player-info"><div class="player-name">J. Allen <span class="pos pos-qb">QB</span></div><div class="player-sub">BUF · Midnight Blitz</div></div>
+            <div class="player-stat">38.7</div>
+          </div>
+          <div class="player-row">
+            <div class="player-num">2</div>
+            <div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Christian_McCaffrey_2022.jpg/440px-Christian_McCaffrey_2022.jpg" alt="CMC" loading="lazy" onerror="this.style.display='none'"></div>
+            <div class="player-info"><div class="player-name">C. McCaffrey <span class="pos pos-rb">RB</span></div><div class="player-sub">SF · Shadow Syndicate</div></div>
+            <div class="player-stat">34.2</div>
+          </div>
+          <div class="player-row">
+            <div class="player-num">3</div>
+            <div class="player-avatar">🎯</div>
+            <div class="player-info"><div class="player-name">T. Hill <span class="pos pos-wr">WR</span></div><div class="player-sub">MIA · The Reapers</div></div>
+            <div class="player-stat">29.8</div>
+          </div>
+          <div class="player-row">
+            <div class="player-num">4</div>
+            <div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Saquon_Barkley_2022.jpg/440px-Saquon_Barkley_2022.jpg" alt="Barkley" loading="lazy" onerror="this.style.display='none'"></div>
+            <div class="player-info"><div class="player-name">S. Barkley <span class="pos pos-rb">RB</span></div><div class="player-sub">PHI · Phantom Menace</div></div>
+            <div class="player-stat">27.4</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-lbl" style="margin-top:16px">Playoff Picture</div>
+      <div class="playoff-box">
+        <div class="playoff-row"><div class="pbar pbar-in"></div><span style="color:var(--green);font-weight:800;font-size:11px">Clinched (4)</span></div>
+        <div class="playoff-row"><div class="pbar pbar-bubble"></div><span style="color:var(--gold-mid);font-weight:800;font-size:11px">On the Bubble (2)</span></div>
+        <div class="playoff-row"><div class="pbar pbar-out"></div><span style="color:var(--text3);font-weight:800;font-size:11px">Eliminated (4)</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: STANDINGS
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-standings">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap">
+    <div><h1 style="font-size:22px;font-weight:900;color:var(--navy)">Standings</h1><p style="font-size:13px;color:var(--text3)">Week 12 of 13 · Regular Season</p></div>
+    <div class="yahoo-badge">Live from Yahoo</div>
+  </div>
+  <div class="card" style="margin-bottom:8px;overflow-x:auto">
+    <table class="standings-table">
+      <colgroup><col style="width:36px"><col><col style="width:44px"><col style="width:44px"><col style="width:76px"><col style="width:76px"><col style="width:60px"><col style="width:80px"></colgroup>
+      <thead><tr><th>#</th><th>Team</th><th style="text-align:center">W</th><th style="text-align:center">L</th><th style="text-align:right">PF</th><th style="text-align:right">PA</th><th style="text-align:center">Streak</th><th style="text-align:center">Playoff</th></tr></thead>
+      <tbody>
+        <tr><td><span class="rank-badge rk1">1</span></td><td><div class="team-cell"><div class="pbar pbar-in"></div><span>⚡</span><div><div style="font-size:13px;font-weight:700">Midnight Blitz</div><div style="font-size:11px;color:var(--text3)">Jordan L.</div></div></div></td><td style="text-align:center"><span class="rec-w">9</span></td><td style="text-align:center"><span class="rec-l">2</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,847.2</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,502.4</td><td style="text-align:center"><span class="streak-w">W4</span></td><td style="text-align:center;font-size:11px;color:var(--green);font-weight:800">Clinched</td></tr>
+        <tr><td><span class="rank-badge rk2">2</span></td><td><div class="team-cell"><div class="pbar pbar-in"></div><span>🌑</span><div><div style="font-size:13px;font-weight:700">Shadow Syndicate</div><div style="font-size:11px;color:var(--text3)">Marcus H.</div></div></div></td><td style="text-align:center"><span class="rec-w">8</span></td><td style="text-align:center"><span class="rec-l">3</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,724.8</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,498.1</td><td style="text-align:center"><span class="streak-w">W3</span></td><td style="text-align:center;font-size:11px;color:var(--green);font-weight:800">Clinched</td></tr>
+        <tr><td><span class="rank-badge rk3">3</span></td><td><div class="team-cell"><div class="pbar pbar-in"></div><span>🏹</span><div><div style="font-size:13px;font-weight:700">Shadowstrikers</div><div style="font-size:11px;color:var(--text3)">Mike D.</div></div></div></td><td style="text-align:center"><span class="rec-w">7</span></td><td style="text-align:center"><span class="rec-l">4</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,641.5</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,530.2</td><td style="text-align:center"><span class="streak-w">W2</span></td><td style="text-align:center;font-size:11px;color:var(--green);font-weight:800">Clinched</td></tr>
+        <tr><td><span class="rank-badge rkn">4</span></td><td><div class="team-cell"><div class="pbar pbar-in"></div><span>💀</span><div><div style="font-size:13px;font-weight:700">The Reapers</div><div style="font-size:11px;color:var(--text3)">Chris M.</div></div></div></td><td style="text-align:center"><span class="rec-w">7</span></td><td style="text-align:center"><span class="rec-l">4</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,598.7</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,487.3</td><td style="text-align:center"><span class="streak-l">L1</span></td><td style="text-align:center;font-size:11px;color:var(--green);font-weight:800">Clinched</td></tr>
+        <tr style="border-top:2px dashed rgba(184,134,11,.4)"><td><span class="rank-badge rkn">5</span></td><td><div class="team-cell"><div class="pbar pbar-bubble"></div><span>🔱</span><div><div style="font-size:13px;font-weight:700">Phantom Menace</div><div style="font-size:11px;color:var(--text3)">Alex P.</div></div></div></td><td style="text-align:center"><span class="rec-w">6</span></td><td style="text-align:center"><span class="rec-l">5</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,544.2</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,512.8</td><td style="text-align:center"><span class="streak-w">W1</span></td><td style="text-align:center;font-size:11px;color:var(--gold-mid);font-weight:800">Bubble</td></tr>
+        <tr><td><span class="rank-badge rkn">6</span></td><td><div class="team-cell"><div class="pbar pbar-bubble"></div><span>🐎</span><div><div style="font-size:13px;font-weight:700">Dark Horse FC</div><div style="font-size:11px;color:var(--text3)">Sam R.</div></div></div></td><td style="text-align:center"><span class="rec-w">5</span></td><td style="text-align:center"><span class="rec-l">6</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,521.0</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,538.4</td><td style="text-align:center"><span class="streak-l">L2</span></td><td style="text-align:center;font-size:11px;color:var(--gold-mid);font-weight:800">Bubble</td></tr>
+        <tr style="border-top:2px dashed rgba(192,57,43,.3)"><td><span class="rank-badge rkn">7</span></td><td><div class="team-cell"><div class="pbar pbar-out"></div><span>🌪️</span><div><div style="font-size:13px;font-weight:700">Vortex Nation</div><div style="font-size:11px;color:var(--text3)">Nick W.</div></div></div></td><td style="text-align:center"><span class="rec-w">4</span></td><td style="text-align:center"><span class="rec-l">7</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,480.3</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,590.7</td><td style="text-align:center"><span class="streak-l">L3</span></td><td style="text-align:center;font-size:11px;color:var(--red)">Elim.</td></tr>
+        <tr><td><span class="rank-badge rkn">8</span></td><td><div class="team-cell"><div class="pbar pbar-out"></div><span>💨</span><div><div style="font-size:13px;font-weight:700">Gridiron Ghosts</div><div style="font-size:11px;color:var(--text3)">Tyler B.</div></div></div></td><td style="text-align:center"><span class="rec-w">4</span></td><td style="text-align:center"><span class="rec-l">7</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,461.9</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,611.3</td><td style="text-align:center"><span class="streak-l">L1</span></td><td style="text-align:center;font-size:11px;color:var(--red)">Elim.</td></tr>
+        <tr><td><span class="rank-badge rkn">9</span></td><td><div class="team-cell"><div class="pbar pbar-out"></div><span>👻</span><div><div style="font-size:13px;font-weight:700">End Zone Phantoms</div><div style="font-size:11px;color:var(--text3)">Devon K.</div></div></div></td><td style="text-align:center"><span class="rec-w">3</span></td><td style="text-align:center"><span class="rec-l">8</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,389.4</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,642.0</td><td style="text-align:center"><span class="streak-l">L4</span></td><td style="text-align:center;font-size:11px;color:var(--red)">Elim.</td></tr>
+        <tr><td><span class="rank-badge rkn">10</span></td><td><div class="team-cell"><div class="pbar pbar-out"></div><span>💥</span><div><div style="font-size:13px;font-weight:700">Blitz Krieg</div><div style="font-size:11px;color:var(--text3)">Ryan T.</div></div></div></td><td style="text-align:center"><span class="rec-w">2</span></td><td style="text-align:center"><span class="rec-l">9</span></td><td style="text-align:right;font-size:12px;color:var(--text3)">1,312.7</td><td style="text-align:right;font-size:12px;color:var(--text3)">1,688.5</td><td style="text-align:center"><span class="streak-l">L5</span></td><td style="text-align:center;font-size:11px;color:var(--red)">Elim.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;gap:18px;font-size:11px;color:var(--text3);padding:4px 4px 0;flex-wrap:wrap">
+    <span><span style="color:var(--green);font-weight:800">■</span> Clinched</span>
+    <span><span style="color:var(--gold-mid);font-weight:800">■</span> On the bubble</span>
+    <span><span style="color:#CCC;font-weight:800">■</span> Eliminated</span>
+  </div>
+</div><!-- /standings -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: POWER RANKINGS
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-power">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+    <div><h1 style="font-size:22px;font-weight:900;color:var(--navy)">Power Rankings</h1><p style="font-size:13px;color:var(--text3)">Week 12 · Commissioner's Algorithm</p></div>
+    <div style="font-size:11px;color:var(--text3)">Based on record, PF, SOS &amp; recent form</div>
+  </div>
+  <div class="g-main">
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Weekly Rankings</div><div style="font-size:11px;color:rgba(255,255,255,.5)">↑↓ vs last week</div></div>
+      <div class="card-bd">
+        <div class="ranking-row"><div class="rk-num" style="color:var(--gold)">1</div><div class="rk-move move-same">—</div><span style="font-size:18px">⚡</span><div class="rk-team"><div class="rk-name">Midnight Blitz <span style="font-size:11px;font-weight:400;color:var(--text3)">Jordan L.</span></div><div class="rk-blurb">Allen exploding. McCaffrey healthy. This team is the undisputed class of the league.</div></div><div class="rk-score">98.4</div></div>
+        <div class="ranking-row"><div class="rk-num">2</div><div class="rk-move move-up">↑1</div><span style="font-size:18px">🏹</span><div class="rk-team"><div class="rk-name">Shadowstrikers <span style="font-size:11px;font-weight:400;color:var(--text3)">Mike D.</span></div><div class="rk-blurb">Quietly on a 2-game heater. No single-player dependency — scary depth.</div></div><div class="rk-score">91.7</div></div>
+        <div class="ranking-row"><div class="rk-num">3</div><div class="rk-move move-dn">↓1</div><span style="font-size:18px">🌑</span><div class="rk-team"><div class="rk-name">Shadow Syndicate <span style="font-size:11px;font-weight:400;color:var(--text3)">Marcus H.</span></div><div class="rk-blurb">Still strong, but Kelce's quiet week is a concern heading into crunch time.</div></div><div class="rk-score">89.2</div></div>
+        <div class="ranking-row"><div class="rk-num">4</div><div class="rk-move move-up">↑2</div><span style="font-size:18px">🔱</span><div class="rk-team"><div class="rk-name">Phantom Menace <span style="font-size:11px;font-weight:400;color:var(--text3)">Alex P.</span></div><div class="rk-blurb">Barkley going nuclear. On a heater — dangerous come playoff time.</div></div><div class="rk-score">84.0</div></div>
+        <div class="ranking-row"><div class="rk-num">5</div><div class="rk-move move-same">—</div><span style="font-size:18px">💀</span><div class="rk-team"><div class="rk-name">The Reapers <span style="font-size:11px;font-weight:400;color:var(--text3)">Chris M.</span></div><div class="rk-blurb">Tua injury clouds WR1 ceiling. Need a bounce-back week fast.</div></div><div class="rk-score">79.5</div></div>
+        <div class="ranking-row"><div class="rk-num">6</div><div class="rk-move move-dn">↓3</div><span style="font-size:18px">🐎</span><div class="rk-team"><div class="rk-name">Dark Horse FC <span style="font-size:11px;font-weight:400;color:var(--text3)">Sam R.</span></div><div class="rk-blurb">Lost 2 straight. Roster aging at the worst possible time.</div></div><div class="rk-score">74.1</div></div>
+        <div class="ranking-row"><div class="rk-num">7</div><div class="rk-move move-same">—</div><span style="font-size:18px">🌪️</span><div class="rk-team"><div class="rk-name">Vortex Nation <span style="font-size:11px;font-weight:400;color:var(--text3)">Nick W.</span></div><div class="rk-blurb">Mathematically alive, practically cooked. Need 3 wins + pure chaos.</div></div><div class="rk-score">66.8</div></div>
+        <div class="ranking-row"><div class="rk-num">8</div><div class="rk-move move-up">↑1</div><span style="font-size:18px">💨</span><div class="rk-team"><div class="rk-name">Gridiron Ghosts <span style="font-size:11px;font-weight:400;color:var(--text3)">Tyler B.</span></div><div class="rk-blurb">Getting outscored every week. Playing for pride and the toilet bowl.</div></div><div class="rk-score">58.3</div></div>
+        <div class="ranking-row"><div class="rk-num">9</div><div class="rk-move move-dn">↓1</div><span style="font-size:18px">👻</span><div class="rk-team"><div class="rk-name">End Zone Phantoms <span style="font-size:11px;font-weight:400;color:var(--text3)">Devon K.</span></div><div class="rk-blurb">The injury bug hit hard. This roster is a full MASH unit.</div></div><div class="rk-score">51.9</div></div>
+        <div class="ranking-row"><div class="rk-num" style="color:var(--red)">10</div><div class="rk-move move-same">—</div><span style="font-size:18px">💥</span><div class="rk-team"><div class="rk-name">Blitz Krieg <span style="font-size:11px;font-weight:400;color:var(--text3)">Ryan T.</span></div><div class="rk-blurb">Historic bad luck OR historic bad management? The jury says: both.</div></div><div class="rk-score">38.2</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="mover-card">
+        <div style="font-size:32px;margin-bottom:6px">🔱</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text)">Phantom Menace</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:2px">Alex P.</div>
+        <div class="mover-badge">↑ 2 spots this week</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.5">Barkley dropped 27, Kelce woke up. Stole a gut-punch win to keep playoff hopes breathing.</div>
+      </div>
+      <div class="faller-card">
+        <div style="font-size:32px;margin-bottom:6px">🐎</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text)">Dark Horse FC</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:2px">Sam R.</div>
+        <div class="faller-badge">↓ 3 spots this week</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.5">Lost to The Reapers in a heartbreaker. RB1 questionable for the next two weeks.</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /power -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: STATS
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-stats">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+    <div><h1 style="font-size:22px;font-weight:900;color:var(--navy)">League Statistics</h1><p style="font-size:13px;color:var(--text3)">Season totals · Mock data (Yahoo API pending)</p></div>
+    <div class="yahoo-badge">Yahoo API — Coming Soon</div>
+  </div>
+
+  <div class="photo-strip" style="margin-bottom:18px">
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Josh_Allen_2022_%28cropped%29.jpg/440px-Josh_Allen_2022_%28cropped%29.jpg" alt="Josh Allen" loading="lazy">
+      <div class="photo-cap">Josh Allen · Season leader · 418.7 pts</div>
+    </div>
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Christian_McCaffrey_2022.jpg/440px-Christian_McCaffrey_2022.jpg" alt="McCaffrey" loading="lazy">
+      <div class="photo-cap">C. McCaffrey · RB leader · 387.4 pts</div>
+    </div>
+    <div class="photo-card">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Saquon_Barkley_2022.jpg/440px-Saquon_Barkley_2022.jpg" alt="Barkley" loading="lazy">
+      <div class="photo-cap">Saquon Barkley · Week 12 hero · 27.4 pts</div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-bottom:18px">
+    <div class="stat-pill"><div class="stat-value">144.8</div><div class="stat-label">Week High Score</div></div>
+    <div class="stat-pill"><div class="stat-value">1,847</div><div class="stat-label">Season High PF</div></div>
+    <div class="stat-pill"><div class="stat-value">112.4</div><div class="stat-label">League Avg / Week</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('all',this)">All</button>
+    <button class="tab" onclick="showTab('qb',this)">QBs</button>
+    <button class="tab" onclick="showTab('rb',this)">RBs</button>
+    <button class="tab" onclick="showTab('wr',this)">WRs</button>
+    <button class="tab" onclick="showTab('teams',this)">Teams</button>
+  </div>
+
+  <div id="tab-all" class="card">
+    <div class="card-hd"><div class="card-title">Season Top Scorers</div></div>
+    <div class="card-bd" style="padding:8px 14px">
+      <div class="player-row"><div class="player-num">1</div><div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Josh_Allen_2022_%28cropped%29.jpg/440px-Josh_Allen_2022_%28cropped%29.jpg" alt="Allen" loading="lazy" onerror="this.style.display='none'"></div><div class="player-info"><div class="player-name">Josh Allen <span class="pos pos-qb">QB</span></div><div class="player-sub">BUF · <strong>Midnight Blitz</strong></div></div><div class="player-stat">418.7</div></div>
+      <div class="player-row"><div class="player-num">2</div><div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Christian_McCaffrey_2022.jpg/440px-Christian_McCaffrey_2022.jpg" alt="CMC" loading="lazy" onerror="this.style.display='none'"></div><div class="player-info"><div class="player-name">C. McCaffrey <span class="pos pos-rb">RB</span></div><div class="player-sub">SF · <strong>Shadow Syndicate</strong></div></div><div class="player-stat">387.4</div></div>
+      <div class="player-row"><div class="player-num">3</div><div class="player-avatar">🎯</div><div class="player-info"><div class="player-name">Tyreek Hill <span class="pos pos-wr">WR</span></div><div class="player-sub">MIA · <strong>The Reapers</strong></div></div><div class="player-stat">341.2</div></div>
+      <div class="player-row"><div class="player-num">4</div><div class="player-avatar">💪</div><div class="player-info"><div class="player-name">Lamar Jackson <span class="pos pos-qb">QB</span></div><div class="player-sub">BAL · <strong>Shadowstrikers</strong></div></div><div class="player-stat">329.8</div></div>
+      <div class="player-row"><div class="player-num">5</div><div class="player-avatar"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Saquon_Barkley_2022.jpg/440px-Saquon_Barkley_2022.jpg" alt="Barkley" loading="lazy" onerror="this.style.display='none'"></div><div class="player-info"><div class="player-name">Saquon Barkley <span class="pos pos-rb">RB</span></div><div class="player-sub">PHI · <strong>Phantom Menace</strong></div></div><div class="player-stat">318.4</div></div>
+      <div class="player-row"><div class="player-num">6</div><div class="player-avatar">🔥</div><div class="player-info"><div class="player-name">Amon-Ra St. Brown <span class="pos pos-wr">WR</span></div><div class="player-sub">DET · <strong>Midnight Blitz</strong></div></div><div class="player-stat">294.1</div></div>
+      <div class="player-row"><div class="player-num">7</div><div class="player-avatar">🏔️</div><div class="player-info"><div class="player-name">Travis Kelce <span class="pos pos-te">TE</span></div><div class="player-sub">KC · <strong>Shadow Syndicate</strong></div></div><div class="player-stat">278.9</div></div>
+      <div class="player-row"><div class="player-num">8</div><div class="player-avatar">🌟</div><div class="player-info"><div class="player-name">Davante Adams <span class="pos pos-wr">WR</span></div><div class="player-sub">NYJ · <strong>Dark Horse FC</strong></div></div><div class="player-stat">264.7</div></div>
+    </div>
+  </div>
+
+  <div id="tab-qb" class="card" style="display:none">
+    <div class="card-hd"><div class="card-title">Top QBs</div></div>
+    <div class="card-bd" style="padding:8px 14px">
+      <div class="player-row"><div class="player-num">1</div><div class="player-avatar">🏈</div><div class="player-info"><div class="player-name">Josh Allen <span class="pos pos-qb">QB</span></div><div class="player-sub">BUF · Midnight Blitz</div></div><div class="player-stat">418.7</div></div>
+      <div class="player-row"><div class="player-num">2</div><div class="player-avatar">💪</div><div class="player-info"><div class="player-name">Lamar Jackson <span class="pos pos-qb">QB</span></div><div class="player-sub">BAL · Shadowstrikers</div></div><div class="player-stat">329.8</div></div>
+      <div class="player-row"><div class="player-num">3</div><div class="player-avatar">🎯</div><div class="player-info"><div class="player-name">Jalen Hurts <span class="pos pos-qb">QB</span></div><div class="player-sub">PHI · The Reapers</div></div><div class="player-stat">298.4</div></div>
+      <div class="player-row"><div class="player-num">4</div><div class="player-avatar">⚡</div><div class="player-info"><div class="player-name">Patrick Mahomes <span class="pos pos-qb">QB</span></div><div class="player-sub">KC · Shadow Syndicate</div></div><div class="player-stat">274.1</div></div>
+    </div>
+  </div>
+
+  <div id="tab-rb" class="card" style="display:none">
+    <div class="card-hd"><div class="card-title">Top RBs</div></div>
+    <div class="card-bd" style="padding:8px 14px">
+      <div class="player-row"><div class="player-num">1</div><div class="player-avatar">🏃</div><div class="player-info"><div class="player-name">C. McCaffrey <span class="pos pos-rb">RB</span></div><div class="player-sub">SF · Shadow Syndicate</div></div><div class="player-stat">387.4</div></div>
+      <div class="player-row"><div class="player-num">2</div><div class="player-avatar">⚡</div><div class="player-info"><div class="player-name">Saquon Barkley <span class="pos pos-rb">RB</span></div><div class="player-sub">PHI · Phantom Menace</div></div><div class="player-stat">318.4</div></div>
+      <div class="player-row"><div class="player-num">3</div><div class="player-avatar">🔥</div><div class="player-info"><div class="player-name">De'Von Achane <span class="pos pos-rb">RB</span></div><div class="player-sub">MIA · Midnight Blitz</div></div><div class="player-stat">241.7</div></div>
+      <div class="player-row"><div class="player-num">4</div><div class="player-avatar">💨</div><div class="player-info"><div class="player-name">Breece Hall <span class="pos pos-rb">RB</span></div><div class="player-sub">NYJ · Gridiron Ghosts</div></div><div class="player-stat">218.3</div></div>
+    </div>
+  </div>
+
+  <div id="tab-wr" class="card" style="display:none">
+    <div class="card-hd"><div class="card-title">Top WRs</div></div>
+    <div class="card-bd" style="padding:8px 14px">
+      <div class="player-row"><div class="player-num">1</div><div class="player-avatar">🎯</div><div class="player-info"><div class="player-name">Tyreek Hill <span class="pos pos-wr">WR</span></div><div class="player-sub">MIA · The Reapers</div></div><div class="player-stat">341.2</div></div>
+      <div class="player-row"><div class="player-num">2</div><div class="player-avatar">🔥</div><div class="player-info"><div class="player-name">Amon-Ra St. Brown <span class="pos pos-wr">WR</span></div><div class="player-sub">DET · Midnight Blitz</div></div><div class="player-stat">294.1</div></div>
+      <div class="player-row"><div class="player-num">3</div><div class="player-avatar">🌟</div><div class="player-info"><div class="player-name">Davante Adams <span class="pos pos-wr">WR</span></div><div class="player-sub">NYJ · Dark Horse FC</div></div><div class="player-stat">264.7</div></div>
+      <div class="player-row"><div class="player-num">4</div><div class="player-avatar">💫</div><div class="player-info"><div class="player-name">Stefon Diggs <span class="pos pos-wr">WR</span></div><div class="player-sub">HOU · Shadowstrikers</div></div><div class="player-stat">251.9</div></div>
+    </div>
+  </div>
+
+  <div id="tab-teams" class="card" style="display:none">
+    <div class="card-hd"><div class="card-title">Team Season Stats</div></div>
+    <div class="card-bd" style="padding:8px 14px;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 6px;font-size:10px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)">Team</th>
+          <th style="text-align:right;padding:6px 6px;font-size:10px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)">PF/Wk</th>
+          <th style="text-align:right;padding:6px 6px;font-size:10px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)">PA/Wk</th>
+          <th style="text-align:right;padding:6px 6px;font-size:10px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)">High</th>
+          <th style="text-align:right;padding:6px 6px;font-size:10px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)">Low</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:7px 6px">⚡ Midnight Blitz</td><td style="text-align:right;padding:7px 6px;color:var(--navy);font-weight:800">167.9</td><td style="text-align:right;padding:7px 6px;color:var(--text3)">136.6</td><td style="text-align:right;padding:7px 6px;color:var(--green);font-weight:700">201.4</td><td style="text-align:right;padding:7px 6px;color:var(--red)">112.1</td></tr>
+          <tr style="background:#FAFAFA"><td style="padding:7px 6px">🌑 Shadow Syndicate</td><td style="text-align:right;padding:7px 6px;color:var(--navy);font-weight:800">156.8</td><td style="text-align:right;padding:7px 6px;color:var(--text3)">136.2</td><td style="text-align:right;padding:7px 6px;color:var(--green);font-weight:700">188.7</td><td style="text-align:right;padding:7px 6px;color:var(--red)">104.3</td></tr>
+          <tr><td style="padding:7px 6px">🏹 Shadowstrikers</td><td style="text-align:right;padding:7px 6px;color:var(--navy);font-weight:800">149.2</td><td style="text-align:right;padding:7px 6px;color:var(--text3)">139.1</td><td style="text-align:right;padding:7px 6px;color:var(--green);font-weight:700">178.2</td><td style="text-align:right;padding:7px 6px;color:var(--red)">98.7</td></tr>
+          <tr style="background:#FAFAFA"><td style="padding:7px 6px">💀 The Reapers</td><td style="text-align:right;padding:7px 6px">145.3</td><td style="text-align:right;padding:7px 6px;color:var(--text3)">135.2</td><td style="text-align:right;padding:7px 6px;color:var(--green);font-weight:700">172.4</td><td style="text-align:right;padding:7px 6px;color:var(--red)">97.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /stats -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: EDITORIAL
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-editorial">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+    <div><h1 style="font-size:22px;font-weight:900;color:var(--navy)">The Shadow Press</h1><p style="font-size:13px;color:var(--text3)">Opinions, analysis and hot takes from the league</p></div>
+    <button class="write-btn" onclick="toggleCompose()">Write a Post</button>
+  </div>
+
+  <div class="compose" id="compose">
+    <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px">New Editorial Post</div>
+    <input type="text" class="compose-field" id="compose-title" placeholder="Headline — e.g. Why Midnight Blitz will choke in the playoffs...">
+    <textarea class="compose-field" id="compose-body" placeholder="Share your take with the league..."></textarea>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <select class="compose-field" style="width:auto;flex:0 0 auto;padding:8px 12px">
+        <option>Hot Take</option><option>Analysis</option><option>Opinion</option><option>Recap</option>
+      </select>
+      <input class="compose-field" style="flex:1;min-width:140px" placeholder="Your name / team">
+    </div>
+    <div class="compose-actions">
+      <button class="btn-cancel" onclick="toggleCompose()">Cancel</button>
+      <button class="btn-pub" onclick="submitPost()">Publish to The Shadow Press</button>
+    </div>
+  </div>
+
+  <div class="editorial-featured">
+    <div class="feat-banner">⭐ Editor's Pick · Featured This Week</div>
+    <div class="feat-body">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div class="ed-avatar" style="background:#FDECEA;color:var(--red)">JL</div>
+        <div><div class="ed-author">Jordan L. · Midnight Blitz</div><div class="ed-date">Nov 21, 2024</div></div>
+        <span class="ed-tag tag-hot" style="margin-left:auto">Hot Take</span>
+      </div>
+      <div class="feat-title">"The League is Cooked — Midnight Blitz is Unbeatable and Everyone Knows It"</div>
+      <div class="feat-preview">Josh Allen is putting up video game numbers. CMC is healthy. Amon-Ra is reliable as death and taxes. At this point I don't know why the rest of you are still setting lineups — you're competing for second place and we all know it. The only team I respect is Marcus's squad, and that's only because they have McCaffrey. Everyone else? Schedule fillers. See you in the championship. I'll be the one with the trophy...</div>
+      <div class="ed-footer"><div class="ed-reactions"><span>🔥 14</span><span>😤 8</span><span>💀 3</span></div><span class="ed-read">Read full post →</span></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="ed-card"><div class="ed-banner" style="background:var(--blue)"></div><div class="ed-body"><div class="ed-meta"><div class="ed-avatar" style="background:#EAF2FF;color:var(--blue)">MH</div><div><div class="ed-author">Marcus H. · Shadow Syndicate</div><div class="ed-date">Nov 20, 2024</div></div><span class="ed-tag tag-analysis">Analysis</span></div><div class="ed-title">The Kelce Situation: Should I Be Worried?</div><div class="ed-preview">3 catches, 28 yards last week. Before you @ me — it's Kelce. I know. But hear me out...</div><div class="ed-footer"><div class="ed-reactions"><span>🤔 9</span><span>👀 6</span></div><span class="ed-read">Read →</span></div></div></div>
+    <div class="ed-card"><div class="ed-banner" style="background:var(--green)"></div><div class="ed-body"><div class="ed-meta"><div class="ed-avatar" style="background:#EAFAF0;color:var(--green)">AP</div><div><div class="ed-author">Alex P. · Phantom Menace</div><div class="ed-date">Nov 19, 2024</div></div><span class="ed-tag tag-opinion">Opinion</span></div><div class="ed-title">Barkley Just Put Me on His Back — Playoff Bound</div><div class="ed-preview">27 points. From one guy. I'd been writing my team's obituary for 3 weeks and Saquon said not today. I'm back, baby...</div><div class="ed-footer"><div class="ed-reactions"><span>🙌 11</span><span>😅 4</span></div><span class="ed-read">Read →</span></div></div></div>
+    <div class="ed-card"><div class="ed-banner" style="background:var(--red)"></div><div class="ed-body"><div class="ed-meta"><div class="ed-avatar" style="background:#FDECEA;color:var(--red)">CM</div><div><div class="ed-author">Chris M. · The Reapers</div><div class="ed-date">Nov 18, 2024</div></div><span class="ed-tag tag-hot">Hot Take</span></div><div class="ed-title">Tua Needs to Sit — My Season Depends On It</div><div class="ed-preview">If Tyreek gets 6 catches for 48 yards one more time because of Tua's shoulder I'm going to lose my mind...</div><div class="ed-footer"><div class="ed-reactions"><span>😭 7</span><span>💀 12</span></div><span class="ed-read">Read →</span></div></div></div>
+    <div class="ed-card"><div class="ed-banner" style="background:#7C3AED"></div><div class="ed-body"><div class="ed-meta"><div class="ed-avatar" style="background:#F0EAFF;color:#7C3AED">SR</div><div><div class="ed-author">Sam R. · Dark Horse FC</div><div class="ed-date">Nov 17, 2024</div></div><span class="ed-tag tag-analysis">Analysis</span></div><div class="ed-title">The Waiver Wire Is Dry — A Eulogy</div><div class="ed-preview">Week 12 and every add is a handcuff to a 3rd-string RB on injured reserve. The cupboard is completely bare...</div><div class="ed-footer"><div class="ed-reactions"><span>😔 10</span><span>F 8</span></div><span class="ed-read">Read →</span></div></div></div>
+  </div>
+</div><!-- /editorial -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PAGE: TROPHY CASE
+════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-trophies">
+  <div style="margin-bottom:20px">
+    <h1 style="font-size:22px;font-weight:900;color:var(--navy)">Trophy Case</h1>
+    <p style="font-size:13px;color:var(--text3)">League history · Champions, records and legendary moments</p>
+  </div>
+
+  <div class="section-lbl">League Champions</div>
+  <div class="trophy-grid">
+    <div class="trophy-item" style="background:var(--gold-bg)">
+      <div class="trophy-icon">🏆</div>
+      <div class="trophy-title">2023 Champion</div>
+      <div class="trophy-winner">Shadow Syndicate</div>
+      <div class="trophy-detail">Marcus H. · 9–4 season</div>
+    </div>
+    <div class="trophy-item">
+      <div class="trophy-icon">🥈</div>
+      <div class="trophy-title">2022 Champion</div>
+      <div class="trophy-winner">The Reapers</div>
+      <div class="trophy-detail">Chris M. · 10–3 season</div>
+    </div>
+    <div class="trophy-item">
+      <div class="trophy-icon">🥉</div>
+      <div class="trophy-title">2021 Champion</div>
+      <div class="trophy-winner">Dark Horse FC</div>
+      <div class="trophy-detail">Sam R. · 8–5 season</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Season Records</div>
+  <div class="trophy-grid">
+    <div class="trophy-item"><div class="trophy-icon">🔥</div><div class="trophy-title">Highest Score Ever</div><div class="trophy-winner">224.7 pts</div><div class="trophy-detail">Midnight Blitz · Wk 7, 2024</div></div>
+    <div class="trophy-item"><div class="trophy-icon">💀</div><div class="trophy-title">Lowest Score Ever</div><div class="trophy-winner">51.3 pts</div><div class="trophy-detail">Blitz Krieg · Wk 4, 2024</div></div>
+    <div class="trophy-item"><div class="trophy-icon">🎯</div><div class="trophy-title">Most PF — Season</div><div class="trophy-winner">2,104 pts</div><div class="trophy-detail">The Reapers · 2022</div></div>
+    <div class="trophy-item"><div class="trophy-icon">📈</div><div class="trophy-title">Longest Win Streak</div><div class="trophy-winner">8 Games</div><div class="trophy-detail">Shadow Syndicate · 2023</div></div>
+    <div class="trophy-item"><div class="trophy-icon">😤</div><div class="trophy-title">Most Losses — Season</div><div class="trophy-winner">11 Losses</div><div class="trophy-detail">Blitz Krieg · 2023</div></div>
+    <div class="trophy-item"><div class="trophy-icon">🧊</div><div class="trophy-title">Clutch Playoff Win</div><div class="trophy-winner">Dark Horse FC</div><div class="trophy-detail">Won by 0.4 pts · 2021</div></div>
+  </div>
+
+  <div class="section-lbl">Hall of Shame</div>
+  <div class="trophy-grid">
+    <div class="trophy-item"><div class="trophy-icon">👑</div><div class="trophy-title">Most Weekly No. 1s</div><div class="trophy-winner">Shadow Syndicate</div><div class="trophy-detail">Marcus H. · 14 total</div></div>
+    <div class="trophy-item"><div class="trophy-icon">🤦</div><div class="trophy-title">Worst Trade Ever</div><div class="trophy-winner">The Diggs-for-Keenan Deal</div><div class="trophy-detail">Blitz Krieg · Wk 6, 2022</div></div>
+    <div class="trophy-item"><div class="trophy-icon">🎲</div><div class="trophy-title">Luckiest Win</div><div class="trophy-winner">Phantom Menace</div><div class="trophy-detail">Won by 0.12 pts · 2023</div></div>
+  </div>
+</div><!-- /trophies -->
+</main>
+
+<footer class="site-footer">
+  League of Shadows Fantasy Football &nbsp;·&nbsp; terdglerstrashcrew.com &nbsp;·&nbsp; 2024 Season &nbsp;·&nbsp; Data powered by Yahoo Fantasy API
+</footer>
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('[id^="tab-"]').forEach(function(t){ t.style.display = 'none'; });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-' + id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function toggleCompose() {
+  document.getElementById('compose').classList.toggle('open');
+}
+
+function submitPost() {
+  var title = document.getElementById('compose-title').value.trim();
+  if (!title) { alert('Add a headline first!'); return; }
+  toggleCompose();
+  document.getElementById('compose-title').value = '';
+  document.getElementById('compose-body').value = '';
+  alert('Post published to The Shadow Press!');
+}
+</script>
+</body>
+</html>
